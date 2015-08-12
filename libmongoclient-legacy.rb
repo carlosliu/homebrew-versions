@@ -1,14 +1,14 @@
 class LibmongoclientLegacy < Formula
   homepage "https://www.mongodb.org"
-  url "https://github.com/mongodb/mongo-cxx-driver/archive/legacy-1.0.3.tar.gz"
-  sha256 "9d1da2d5bc258ceb5f6a58cd5a8893aabdec768e7771ede270a36fbf4b4491d2"
+  url "https://github.com/mongodb/mongo-cxx-driver/archive/legacy-1.0.4.tar.gz"
+  sha256 "a348c27ac1629a0e4f5871cd599b25b740be97a3bf4a2bd4490cf93ad23d484a"
 
   head "https://github.com/mongodb/mongo-cxx-driver.git", :branch => "legacy"
 
   bottle do
-    sha256 "098e1f54a5ff0eefaa2f80bdb1c37792c9bfdebf49fc55f439a37143b6fa84bc" => :yosemite
-    sha256 "016a9dff9e4f0d12919eb135976eba568d890476e9cfc53f95039e3e467df49f" => :mavericks
-    sha256 "89f5e5dd0504b75c5d454536b0d604704c262e5791b0cc160e6a366eebcda827" => :mountain_lion
+    sha256 "fb2886f1ecad46bebeb2ac3ac2666f525e3e54feeaae01b8d05862529b04a5e0" => :yosemite
+    sha256 "cd74b412de1018cf908e4c177b1db0be870ba015ee34f5507f966e6f57d4328b" => :mavericks
+    sha256 "81ffc4dfe7fc6c6811897f282ee5859e394bd1ef0ea6e30b8e37885aa8b4d3ae" => :mountain_lion
   end
 
   conflicts_with "libmongoclient", :because => "libmongoclient contains 26compat branch"
@@ -45,5 +45,21 @@ class LibmongoclientLegacy < Formula
     args << "--libc++" if MacOS.version >= :mavericks
 
     scons *args
+  end
+
+  test do
+    (testpath/"test.cpp").write <<-EOS.undent
+      #include <mongo/client/dbclient.h>
+
+      int main() {
+          mongo::DBClientConnection c;
+          mongo::client::initialize();
+          return 0;
+      }
+    EOS
+    system ENV.cxx, "-L#{lib}", "-lmongoclient",
+           "-L#{Formula["boost"].opt_lib}", "-lboost_system",
+           testpath/"test.cpp", "-o", testpath/"test"
+    system "./test"
   end
 end

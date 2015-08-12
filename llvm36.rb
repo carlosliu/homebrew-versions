@@ -1,56 +1,77 @@
+class CodesignRequirement < Requirement
+  include FileUtils
+  fatal true
+
+  satisfy(:build_env => false) do
+    mktemp do
+      touch "llvm_check.txt"
+      quiet_system "/usr/bin/codesign", "-s", "lldb_codesign", "llvm_check.txt"
+    end
+  end
+
+  def message
+    <<-EOS.undent
+      lldb_codesign identity must be available to build with LLDB.
+      See: https://llvm.org/svn/llvm-project/lldb/trunk/docs/code-signing.txt
+    EOS
+  end
+end
+
 class Llvm36 < Formula
   desc "A modular and reusable compiler system"
   homepage "http://llvm.org/"
 
   stable do
-    url "http://llvm.org/releases/3.6.1/llvm-3.6.1.src.tar.xz"
-    sha256 "2f00c615913aa0b56607ee1548936e60ad2aa89e6d56f23fb032a4463366fc7a"
+    url "http://llvm.org/releases/3.6.2/llvm-3.6.2.src.tar.xz"
+    sha256 "f60dc158bfda6822de167e87275848969f0558b3134892ff54fced87e4667b94"
 
     resource "clang" do
-      url "http://llvm.org/releases/3.6.1/cfe-3.6.1.src.tar.xz"
-      sha256 "74f92d0c93b86678b015e87655f59474b2f657769680efdeb3c0524ffbd2dad7"
+      url "http://llvm.org/releases/3.6.2/cfe-3.6.2.src.tar.xz"
+      sha256 "ae9180466a23acb426d12444d866b266ff2289b266064d362462e44f8d4699f3"
     end
 
     resource "clang-tools-extra" do
-      url "http://llvm.org/releases/3.6.1/clang-tools-extra-3.6.1.src.tar.xz"
-      sha256 "f4ee70d870d550a9147ac6a548ce7daf7d9e6897348bf411f43c572966fb92b6"
+      url "http://llvm.org/releases/3.6.2/clang-tools-extra-3.6.2.src.tar.xz"
+      sha256 "6a0ec627d398f501ddf347060f7a2ccea4802b2494f1d4fd7bda3e0442d04feb"
     end
 
     resource "compiler-rt" do
-      url "http://llvm.org/releases/3.6.1/compiler-rt-3.6.1.src.tar.xz"
-      sha256 "fcbf610c77be6047f11ca10c4725610417beba832565115a9e2fcfe2897b649f"
+      url "http://llvm.org/releases/3.6.2/compiler-rt-3.6.2.src.tar.xz"
+      sha256 "0f2ff37d80a64575fecd8cf0d5c50f7ac1f837ddf700d1855412bb7547431d87"
     end
 
     resource "polly" do
-      url "http://llvm.org/releases/3.6.1/polly-3.6.1.src.tar.xz"
-      sha256 "d085f97bcbb4e47b51ed60ba9a55b3fee394193e7e48ab5c5b0035e6fc80a7eb"
+      url "http://llvm.org/releases/3.6.2/polly-3.6.2.src.tar.xz"
+      sha256 "f2a956730b76212f22a1c10f35f195795e4d027ad28c226f97ddb8c0fd16bcbc"
     end
 
     resource "lld" do
-      url "http://llvm.org/releases/3.6.1/lld-3.6.1.src.tar.xz"
-      sha256 "3aee0513caeac6dd55930838425f63ad79bee9ccdf081cafbd853bbd65486feb"
+      url "http://llvm.org/releases/3.6.2/lld-3.6.2.src.tar.xz"
+      sha256 "43f553c115563600577764262f1f2fac3740f0c639750f81e125963c90030b33"
     end
 
     resource "lldb" do
-      url "http://llvm.org/releases/3.6.1/lldb-3.6.1.src.tar.xz"
-      sha256 "cefb5c64e78e85ad05a06b80f017ccfe1208b74d3da34eb425c505c6fef9aaba"
+      url "http://llvm.org/releases/3.6.2/lldb-3.6.2.src.tar.xz"
+      sha256 "940dc96b64919b7dbf32c37e0e1d1fc88cc18e1d4b3acf1e7dfe5a46eb6523a9"
     end
 
     resource "libcxx" do
-      url "http://llvm.org/releases/3.6.1/libcxx-3.6.1.src.tar.xz"
-      sha256 "5a5c653becf3978d4c4f6095708660855bed691210a9426bb839eecd88b6c0f9"
+      url "http://llvm.org/releases/3.6.2/libcxx-3.6.2.src.tar.xz"
+      sha256 "52f3d452f48209c9df1792158fdbd7f3e98ed9bca8ebb51fcd524f67437c8b81"
     end
 
-    resource "libcxxabi" do
-      url "http://llvm.org/releases/3.6.1/libcxxabi-3.6.1.src.tar.xz"
-      sha256 "bc8387f420dad9b7e66b708e0a8bf9de9d902c1848fcf6b77244eeb282aff15d"
-    end if MacOS.version <= :snow_leopard
+    if MacOS.version <= :snow_leopard
+      resource "libcxxabi" do
+        url "http://llvm.org/releases/3.6.2/libcxxabi-3.6.2.src.tar.xz"
+        sha256 "6fb48ce5a514686b9b75e73e59869f782ed374a86d71be8423372e4b3329b09b"
+      end
+    end
   end
 
   bottle do
-    sha256 "efb032765af76776cb18312760c85ff27adc82cdf5fb3f3e2b897476ac1e95d2" => :yosemite
-    sha256 "f07c9b5d6fbb30d2c3d3b5d294b6120969e161c5f66e7c612d5fbc77ddb26e60" => :mavericks
-    sha256 "3e8da7b8853c6223097e6096a26e10d25ee2ee1c6f3929eac9c376aae825c01a" => :mountain_lion
+    sha256 "2682bb82085611e6591ef98f9006fbcf0d90cfd5e57217a2bb460a217decc878" => :yosemite
+    sha256 "3baf01ebf2d3ed4eb6aaa77bda189f80359c11d081549e3418ad5507010343f4" => :mavericks
+    sha256 "501138751826f671f31a2ab77b58b749e179bc93df957655ca5a7fcb35c1972e" => :mountain_lion
   end
 
   head do
@@ -84,9 +105,11 @@ class Llvm36 < Formula
       url "http://llvm.org/git/libcxx.git", :branch => "release_36"
     end
 
-    resource "libcxxabi" do
-      url "http://llvm.org/git/libcxxabi.git", :branch => "release_36"
-    end if MacOS.version <= :snow_leopard
+    if MacOS.version <= :snow_leopard
+      resource "libcxxabi" do
+        url "http://llvm.org/git/libcxxabi.git", :branch => "release_36"
+      end
+    end
   end
 
   resource "isl" do
@@ -111,9 +134,12 @@ class Llvm36 < Formula
 
   depends_on "gmp"
   depends_on "libffi" => :recommended
-
-  depends_on "swig" if build.with? "lldb"
   depends_on :python => :optional
+
+  if build.with? "lldb"
+    depends_on "swig"
+    depends_on CodesignRequirement
+  end
 
   # version suffix
   def ver
@@ -181,9 +207,7 @@ class Llvm36 < Formula
     end
 
     args << "--enable-shared" if build.with? "shared"
-
     args << "--disable-assertions" if build.without? "assertions"
-
     args << "--enable-libffi" if build.with? "libffi"
 
     system "./configure", *args
@@ -255,10 +279,6 @@ class Llvm36 < Formula
     end
   end
 
-  test do
-    system "#{bin}/llvm-config-#{ver}", "--version"
-  end
-
   def caveats; <<-EOS.undent
     Extra tools are installed in #{opt_share}/clang-#{ver}
 
@@ -267,6 +287,10 @@ class Llvm36 < Formula
       CXXFLAGS="$CXXFLAGS -nostdinc++ -I#{opt_lib}/llvm-#{ver}/include/c++/v1"
       LDFLAGS="$LDFLAGS -L#{opt_lib}/llvm-#{ver}/lib"
     EOS
+  end
+
+  test do
+    system "#{bin}/llvm-config-#{ver}", "--version"
   end
 end
 
